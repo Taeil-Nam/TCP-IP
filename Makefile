@@ -35,8 +35,6 @@ clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
 
 # re
-re:
-	$(MAKE) clean
-	$(MAKE) all
+re: clean all
 
 .PHONY: all clean re
