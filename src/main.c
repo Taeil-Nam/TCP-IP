@@ -12,8 +12,7 @@ int main()
 		enum tcpip_mode mode;
 
 		printf("===========================\n"
-			"Select Mode\n"
-			"0. Exit\n"
+			"Select Mode (Exit: Ctrl+C)\n"
 			"1. Receiver Mode\n"
 			"2. Sender Mode\n"
 			"===========================\n"
@@ -26,8 +25,6 @@ int main()
 
 		mode = atoi(input);
 		switch (mode) {
-		case TCPIP_MODE_EXIT:
-			return 0;
 		case TCPIP_MODE_RECV:
 			start_recv_mode();
 			break;
@@ -35,6 +32,7 @@ int main()
 			start_send_mode();
 			break;
 		default:
+			printf("Wrong number\n");
 			break;
 		}
 		printf("\n");
