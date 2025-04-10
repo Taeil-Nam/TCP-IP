@@ -6,24 +6,30 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
 #include <net/ethernet.h>
+#include <arpa/inet.h>
 
-#define MAX_EVENTS 100
+#include "thread.h"
+#include "recv_thread.h"
+#include "send_thread.h"
 
 static int raw_sock = -1;
 static int epoll_fd = -1;
 
 static void init(void);
 static void run(void);
+static void terminate(void);
 
 int main()
 {
 	init();
 	run();
+	terminate();
 	return 0;
 }
 
@@ -32,7 +38,6 @@ static void init(void)
 	int flag;
 	struct epoll_event ev;
 
-	/* Create raw socket */
 	raw_sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
 
 	if (raw_sock == -1) {
@@ -40,7 +45,6 @@ static void init(void)
 		exit(EXIT_FAILURE);
 	}
 
-	/* Set socket as non-blocking */
 	flag = fcntl(raw_sock, F_GETFL, 0);
 
 	if (flag == -1) {
@@ -53,7 +57,6 @@ static void init(void)
 		exit(EXIT_FAILURE);
 	}
 
-	/* Create epoll */
 	epoll_fd = epoll_create1(0);
 
 	if (epoll_fd == -1) {
@@ -61,7 +64,6 @@ static void init(void)
 		exit(EXIT_FAILURE);
 	}
 
-	/* Add raw socket into epoll */
 	ev.events = EPOLLIN;
 	ev.data.fd = raw_sock;
 
@@ -73,20 +75,39 @@ static void init(void)
 
 static void run(void)
 {
-	/* Check received packet and processing it */
-	while (true) {
-		struct epoll_event events[MAX_EVENTS];
-		int ready_cnt = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
-		int i;
+	void *thread_ret;
 
-		if (ready_cnt == -1) {
-			perror("epoll_wait");
-			exit(EXIT_FAILURE);
-		}
+	struct recv_thread_info *rti =
+		calloc(1, sizeof(struct recv_thread_info));
 
-		for (i = 0; i < ready_cnt; i++) {
-			if (events[i].data.fd == raw_sock)
-				printf("Packet received.\n");
-		}
+	struct send_thread_info *sti =
+		calloc(1, sizeof(struct send_thread_info));
+
+	rti->type = RECV_THREAD;
+	rti->raw_sock = raw_sock;
+	rti->epoll_fd = epoll_fd;
+
+	if (pthread_create(&rti->thread_id, NULL, &recv_thread, rti)) {
+		perror("pthread_create(recv)");
+		exit(EXIT_FAILURE);
 	}
+
+	sti->type = SEND_THREAD;
+	sti->raw_sock = raw_sock;
+
+	if (pthread_create(&sti->thread_id, NULL, &send_thread, sti)) {
+		perror("pthread_create(send)");
+		exit(EXIT_FAILURE);
+	}
+
+	if (pthread_join(sti->thread_id, &thread_ret)) {
+		perror("pthread_join(send)");
+		exit(EXIT_FAILURE);
+	}
+}
+
+static void terminate(void)
+{
+	close(raw_sock);
+	close(epoll_fd);
 }
