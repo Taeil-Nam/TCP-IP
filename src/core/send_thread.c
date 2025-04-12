@@ -15,6 +15,7 @@ void *send_thread(void *arg)
 	struct send_thread_info sti;
 
 	memcpy(&sti, arg, sizeof(sti));
+	free(arg);
 
 	while (true) {
 		printf("\n"
@@ -29,7 +30,7 @@ void *send_thread(void *arg)
 
 		if (fgets(user_input, sizeof(user_input), stdin)) {
 			if (strncmp(user_input, "exit", 4) == 0)
-				exit(EXIT_SUCCESS);
+				return (void *)THREAD_SUCCESS;
 
 			switch (atoi(user_input)) {
 				break;
