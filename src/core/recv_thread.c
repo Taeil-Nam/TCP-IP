@@ -15,7 +15,6 @@ void *recv_thread(void *arg)
 	struct recv_thread_info rti;
 
 	memcpy(&rti, arg, sizeof(rti));
-	free(arg);
 
 	/* Handle incoming packets */
 	while (true) {
@@ -32,9 +31,13 @@ void *recv_thread(void *arg)
 
 		for (i = 0; i < ready_cnt; i++) {
 			if (events[i].data.fd == rti.raw_sock)
-				(void)0; // dummy code
+				(void)0; /* dummy code */
 				// printf("Packet received.\n");
+			else if (events[i].data.fd == rti.terminate_fd) {
+				/* Todo: Release resources */
+				pthread_exit(0);
+			}
 		}
 	}
-	return (void *)THREAD_SUCCESS;
+	pthread_exit(0);
 }

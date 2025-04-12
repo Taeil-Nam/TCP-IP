@@ -15,7 +15,6 @@ void *send_thread(void *arg)
 	struct send_thread_info sti;
 
 	memcpy(&sti, arg, sizeof(sti));
-	free(arg);
 
 	while (true) {
 		printf("\n"
@@ -30,7 +29,7 @@ void *send_thread(void *arg)
 
 		if (fgets(user_input, sizeof(user_input), stdin)) {
 			if (strncmp(user_input, "exit", 4) == 0)
-				return (void *)THREAD_SUCCESS;
+				pthread_exit(0);
 
 			switch (atoi(user_input)) {
 				break;
@@ -44,7 +43,14 @@ void *send_thread(void *arg)
 				printf("Sent UDP Datagram\n");
 				break;
 			}
+
+			printf("\n(Press \"Enter\")");
+			fgets(user_input, sizeof(user_input), stdin);
+			clearerr(stdin);
+
+		} else {
+			pthread_exit(0);
 		}
 	}
-	return (void *)THREAD_SUCCESS;
+	pthread_exit(0);
 }
