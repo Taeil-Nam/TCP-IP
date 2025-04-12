@@ -15,6 +15,7 @@ void *recv_thread(void *arg)
 	struct recv_thread_info rti;
 
 	memcpy(&rti, arg, sizeof(rti));
+	free(arg);
 
 	/* Handle incoming packets */
 	while (true) {

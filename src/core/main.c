@@ -104,6 +104,8 @@ static void run(void)
 		perror("pthread_join(send)");
 		exit(EXIT_FAILURE);
 	}
+
+	terminate();
 }
 
 static void terminate(void)
