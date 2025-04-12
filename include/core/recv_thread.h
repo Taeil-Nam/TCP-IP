@@ -12,6 +12,7 @@ struct recv_thread_info {
 	enum thread_type type;
 	int raw_sock;
 	int epoll_fd;
+	int terminate_fd;
 };
 
 void *recv_thread(void *arg);
