@@ -5,8 +5,12 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <linux/if_packet.h>
 
 #include "recv_thread.h"
+#include "packet.h"
 
 #define MAX_EVENTS 100
 
@@ -16,7 +20,6 @@ void *recv_thread(void *arg)
 
 	memcpy(&rti, arg, sizeof(rti));
 
-	/* Handle incoming packets */
 	while (true) {
 		struct epoll_event events[MAX_EVENTS];
 		int ready_cnt;
@@ -30,11 +33,27 @@ void *recv_thread(void *arg)
 		}
 
 		for (i = 0; i < ready_cnt; i++) {
-			if (events[i].data.fd == rti.raw_sock)
-				(void)0; /* dummy code */
-				// printf("Packet received.\n");
-			else if (events[i].data.fd == rti.terminate_fd) {
-				/* Todo: Release resources */
+			/* Create and handle received packet */
+			if (events[i].data.fd == rti.raw_sock) {
+				struct packet *pkt;
+				struct sockaddr_ll sa;
+				socklen_t sa_len = sizeof(sa);
+
+				pkt = malloc(sizeof(struct packet));
+
+				pkt->len = recvfrom(rti.raw_sock, pkt->data,
+						    PKT_SIZE, 0,
+						    (struct sockaddr *)&sa,
+						    &sa_len);
+
+				if (pkt->len == -1)
+					perror("recvfrom");
+
+				pkt->recv_ifindex = sa.sll_ifindex;
+
+				handle_packet(pkt);
+				free(pkt);
+			} else if (events[i].data.fd == rti.terminate_fd) {
 				pthread_exit(0);
 			}
 		}
