@@ -46,8 +46,10 @@ void *recv_thread(void *arg)
 						    (struct sockaddr *)&sa,
 						    &sa_len);
 
-				if (pkt->len == -1)
+				if (pkt->len == -1) {
 					perror("recvfrom");
+					continue;
+				}
 
 				pkt->recv_ifindex = sa.sll_ifindex;
 
