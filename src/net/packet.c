@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-#include <stdio.h>
 #include "packet.h"
+#include "ethernet.h"
 
-void handle_packet(struct packet *pkt)
+void handle_recv_packet(struct packet *pkt)
 {
-	(void)pkt; /* dummy code */
+	eth_recv(pkt);
 }

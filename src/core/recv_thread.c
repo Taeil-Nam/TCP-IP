@@ -53,7 +53,7 @@ void *recv_thread(void *arg)
 
 				pkt->recv_ifindex = sa.sll_ifindex;
 
-				handle_packet(pkt);
+				handle_recv_packet(pkt);
 				free(pkt);
 			} else if (events[i].data.fd == rti.terminate_fd) {
 				pthread_exit(0);
