@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sys/epoll.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 
@@ -39,8 +38,7 @@ void *recv_thread(void *arg)
 				struct sockaddr_ll sa;
 				socklen_t sa_len = sizeof(sa);
 
-				pkt = malloc(sizeof(struct packet));
-
+				pkt = calloc(1, sizeof(struct packet));
 				pkt->len = recvfrom(rti.raw_sock, pkt->data,
 						    PKT_SIZE, 0,
 						    (struct sockaddr *)&sa,

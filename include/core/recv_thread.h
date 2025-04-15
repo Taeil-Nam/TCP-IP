@@ -8,11 +8,11 @@
 #include "thread.h"
 
 struct recv_thread_info {
-	pthread_t thread_id;
-	enum thread_type type;
-	int raw_sock;
-	int epoll_fd;
-	int terminate_fd;
+	pthread_t		thread_id;
+	enum thread_type	type;
+	int			raw_sock;
+	int			epoll_fd;
+	int			terminate_fd;
 };
 
 void *recv_thread(void *arg);

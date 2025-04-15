@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <unistd.h>
 
 #include "send_thread.h"
 #include "menu.h"
@@ -32,7 +31,6 @@ void *send_thread(void *arg)
 				pthread_exit(0);
 
 			switch (atoi(user_input)) {
-				break;
 			case MENU_ARP:
 				printf("Sent ARP Request\n");
 				break;
@@ -42,12 +40,13 @@ void *send_thread(void *arg)
 			case MENU_UDP:
 				printf("Sent UDP Datagram\n");
 				break;
+			default:
+				break;
 			}
 
 			printf("\n(Press \"Enter\")");
 			fgets(user_input, sizeof(user_input), stdin);
 			clearerr(stdin);
-
 		} else {
 			pthread_exit(0);
 		}

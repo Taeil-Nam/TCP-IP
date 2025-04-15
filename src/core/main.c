@@ -2,16 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
-#include <linux/if_packet.h>
-#include <linux/if_ether.h>
 #include <net/ethernet.h>
 #include <arpa/inet.h>
 
@@ -95,10 +91,9 @@ static void init(void)
 
 static void run(void)
 {
-	void *thread_ret;
-
 	struct recv_thread_info rti;
 	struct send_thread_info sti;
+	void *thread_ret;
 
 	/* Create recv_thread */
 	rti.type = RECV_THREAD;
@@ -111,6 +106,7 @@ static void run(void)
 		exit(EXIT_FAILURE);
 	}
 
+	/* Detach recv_thread */
 	if (pthread_detach(rti.thread_id)) {
 		perror("pthread_detach(recv)");
 		exit(EXIT_FAILURE);
@@ -134,9 +130,9 @@ static void run(void)
 
 static void terminate(void)
 {
-	/* Terminate recv_thread */
 	uint64_t val = 1;
 
+	/* Terminate recv_thread */
 	write(terminate_fd, &val, sizeof(val));
 
 	/* Release resources */
