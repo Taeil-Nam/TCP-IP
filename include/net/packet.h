@@ -3,9 +3,9 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-#define PKT_SIZE 2048
-
 #include <linux/types.h>
+
+#define PKT_SIZE 2048
 
 struct packet {
 	unsigned char	data[PKT_SIZE];
