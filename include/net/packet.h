@@ -26,10 +26,19 @@ static inline unsigned char *pkt_get_mac_header(struct packet *pkt)
 	return pkt->data + pkt->mac_header;
 }
 
-static inline unsigned char *pkt_set_mac_header(struct packet *pkt,
-						const int offset)
+static inline unsigned char *pkt_get_network_header(struct packet *pkt)
 {
-	return pkt->data + offset;
+	return pkt->data + pkt->network_header;
+}
+
+static inline void pkt_set_mac_header(struct packet *pkt, const int offset)
+{
+	pkt->mac_header += offset;
+}
+
+static inline void pkt_set_network_header(struct packet *pkt, const int offset)
+{
+	pkt->network_header = pkt->mac_header + offset;
 }
 
 #endif
